@@ -1,0 +1,17 @@
+{
+  "name": "ssg-zipcd-util",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron --enable-logging ."
+  },
+  "dependencies": {
+    "jquery": "^2.2.0",
+    "webdriverio": "^3.4.0"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^0.36.5",
+    "electron-rebuild": "^1.1.2"
+  }
+}

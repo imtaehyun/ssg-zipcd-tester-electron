@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ssg-zipcd-util</title>
+    <meta charset="UTF-8" />
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/photon.min.css">
+
+    <!-- Javascript -->
+    <!-- <script src="./js/menu.js" charset="utf-8"></script> -->
+  </head>
+  <body>
+    <div class="window">
+        <header class="toolbar toolbar-header">
+            <h1 class="title">ssg-zipcd-util</h1>
+        </header>
+        <div class="window-content">
+            <div class="padded-more">
+                <h3>테스트 할 주소를 입력해주세요.</h3>
+                <form>
+                    <div class="form-group">
+                        <textarea id="testAddr" class="form-control" rows="5">
+서울특별시 성동구 성수이로 137
+서울특별시 중구 퇴계로 100</textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <footer class="toolbar toolbar-footer">
+            <div class="toolbar-actions">
+                <button id="btnStart" class="btn btn-primary pull-right">
+                    Test Start
+                </button>
+            </div>
+        </footer>
+    </div>
+    <script>
+    window.$ = window.jQuery = require('jquery');
+    const ipcRenderer = require('electron').ipcRenderer;
+
+    var addr = [];
+    var idx = 0;
+    $('#btnStart').click(function() {
+        addr = $('#testAddr').val().split('\n');
+        $.each(addr, function(idx, obj) {
+            ipcRenderer.send('test-start', { idx:idx, addr: obj });
+        });
+    });
+
+    ipcRenderer.on('test-result', function(event, arg) {
+        console.log(arg);
+    });
+
+    </script>
+
+  </body>
+</html>
