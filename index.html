@@ -5,9 +5,12 @@
     <meta charset="UTF-8" />
     <!-- Stylesheets -->
     <link rel="stylesheet" href="./css/photon.min.css">
-
-    <!-- Javascript -->
-    <!-- <script src="./js/menu.js" charset="utf-8"></script> -->
+    <style>
+    @import url(https://cdn.rawgit.com/theeluwin/NotoSansKR-Hestia/master/stylesheets/NotoSansKR-Hestia.css);
+    body {
+        font-family: 'Noto Sans Korean', sans-serif;
+    }
+    </style>
   </head>
   <body>
     <div class="window">
@@ -15,15 +18,56 @@
             <h1 class="title">ssg-zipcd-util</h1>
         </header>
         <div class="window-content">
-            <div class="padded-more">
-                <h3>테스트 할 주소를 입력해주세요.</h3>
+            <div class="padded" style="width: 100%">
                 <form>
                     <div class="form-group">
+                        <label for="">test zone</label>
+                        <select name="" id="testZone" class="form-control">
+                            <option value="dev">dev</option>
+                            <option value="qa">qa</option>
+                            <option value="stg">stg</option>
+                            <option value="prod">prod</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">test address</label>
                         <textarea id="testAddr" class="form-control" rows="5">
-서울특별시 성동구 성수이로 137
-서울특별시 중구 퇴계로 100</textarea>
+강원도 강릉시 강동면 윗장작골길 170-18
+경기도 광명시 아방리1길 16
+경상남도 김해시 삼문로 44
+경상북도 구미시 고아읍 봉한3안길 29-68
+대구광역시 동구 반야월로22길 3
+경기도 가평군 하면 연인산로 28
+경기도 가평군 조종면 연인산로 28
+대전광역시 유성구 신성로 141
+대전광역시 유성구 유성대로1184번길 11-27
+전라북도 진안군 진안읍 구룡길 68-9
+전라북도 진안군 진안읍 석곡길 66-9
+전라남도 영광군 염산면 칠산로 174-10
+전라남도 영광군 염산면 칠산로 174-11
+강원도 춘천시 남산면 보매기길 63
+강원도 춘천시 남산면 보매기길 64
+강원도 강릉시 구정면 말미길 66-10
+경기도 구리시 금강로 150
+경기도 수원시 팔달구 향교로 141-3
+경상남도 김해시 김해대로 2502-1
+광주광역시 광산구 마곡길 15-7</textarea>
                     </div>
                 </form>
+
+                <label>result</label>
+                <table id="test-result" class="table-striped">
+                    <thead>
+                        <tr>
+                            <th>idx</th>
+                            <th>test</th>
+                            <th>result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
         <footer class="toolbar toolbar-footer">
@@ -36,20 +80,40 @@
     </div>
     <script>
     window.$ = window.jQuery = require('jquery');
+    window._ = require('underscore');
+
     const ipcRenderer = require('electron').ipcRenderer;
 
-    var addr = [];
-    var idx = 0;
+    var size = 0;
+    var resultList = [];
     $('#btnStart').click(function() {
-        addr = $('#testAddr').val().split('\n');
-        $.each(addr, function(idx, obj) {
-            ipcRenderer.send('test-start', { idx:idx, addr: obj });
-        });
+        var addrStr = $('#testAddr').val();
+        var testZone = $('#testZone').val();
+        size = addrStr.split('\n').length;
+
+        ipcRenderer.send('zipcd-test-start', { testZone: testZone, addrStr: addrStr });
     });
 
-    ipcRenderer.on('test-result', function(event, arg) {
-        console.log(arg);
+    ipcRenderer.on('zipcd-test-end', function(event, result) {
+        console.log(result);
+
+        resultList.push(result);
+        console.log(resultList.length);
+        if (resultList.length == size) {
+            showResult();
+        }
     });
+
+    function showResult() {
+        resultList = _.sortBy(resultList, 'idx');
+        _.each(resultList, function(value, key, list) {
+            if (value.result.result) {
+                $('#test-result tbody').append('<tr><td>' + value.idx + '</td><td>' + value.result.addrStr + '</td><td>' + value.result.result + '</td></tr>');
+            } else {
+                $('#test-result tbody').append('<tr><td>' + value.idx + '</td><td>' + value.result.addrStr + '</td><td>조회결과 없음</td></tr>');
+            }
+        })
+    }
 
     </script>
 
